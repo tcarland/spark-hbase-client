@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project 
+  xmlns="http://maven.apache.org/POM/4.0.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.trace3.hbase</groupId>
+  <artifactId>spark-hbase-client</artifactId>
+  <version>1.0.1</version>
+  <packaging>jar</packaging>
+  <description>Spark HBase Client</description>
+
+  <developers>
+      <developer>
+          <id>tarland</id>
+          <name>Timothy C. Arland</name>
+      </developer>
+  </developers>
+
+  <properties>
+      <spark-assembly>/usr/lib/spark/lib/spark-assembly.jar</spark-assembly>
+      <encoding>UTF-8</encoding>
+      <hadoop.version>2.7.1</hadoop.version>
+      <scala.tools.version>2.10</scala.tools.version>
+      <scala.version>2.10.6</scala.version>
+      <spark.version>2.0.0</spark.version>
+      <hbase.version>1.1.5</hbase.version>    
+  </properties>
+  
+  <dependencies>
+      <dependency>
+          <groupId>org.scala-lang</groupId>
+          <artifactId>scala-library</artifactId>
+          <version>${scala.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-client</artifactId>
+          <version>${hadoop.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.hbase</groupId>
+          <artifactId>hbase-client</artifactId>
+          <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.hbase</groupId>
+          <artifactId>hbase-server</artifactId>
+          <version>${hbase.version}</version>
+      </dependency>
+      <dependency>
+          <groupId>org.apache.spark</groupId>
+          <artifactId>spark-core_${scala.tools.version}</artifactId>
+          <version>${spark.version}</version>
+      </dependency>
+  </dependencies>
+
+  <build>
+      <plugins>
+<!--
+        <plugin>
+          <artifactId>maven-assembly-plugin</artifactId>
+          <configuration>
+            <archive>
+              <manifest>
+                <mainClass>HBaseBaseTest</mainClass>
+              </manifest>
+            </archive>
+            <descriptorRefs>
+              <descriptorRef>jar-with-dependencies</descriptorRef>
+            </descriptorRefs>
+          </configuration>
+        </plugin>
+-->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.1</version>
+            <configuration>
+                <source>1.8</source>
+                <target>1.8</target>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.scala-tools</groupId>
+            <artifactId>maven-scala-plugin</artifactId>
+                <version>2.15.2</version>
+            <executions>
+                <execution>
+                    <goals>
+                        <goal>compile</goal>
+                    </goals>
+                </execution>
+            </executions>
+        </plugin>
+      </plugins>
+  </build>
+
+</project>
+

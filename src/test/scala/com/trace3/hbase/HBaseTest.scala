@@ -1,21 +1,23 @@
 package com.trace3.hbase
 
+import org.apache.hadoop.hbase.HConstants
 import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
 import org.apache.spark._
 
 
 object HBaseTest {
 
-  def usage() {
-    System.err.println("  ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>")
-  }
+  def usage = """
+      ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
+    """
+
   
   def main(args: Array[String]) {
     val sparkConf = new SparkConf().setAppName("HBaseTest")
     val sc = new SparkContext(sparkConf)
 
     if (args.length < 1) {
-      usage
+      System.err.println(usage)
       System.exit(1)
     }
     
@@ -24,7 +26,7 @@ object HBaseTest {
     
     if ( zk.length < 2 ) {
       System.err.println("  ==> Error in Zookeeper definition. Should be 'zkHost1:zkPort,zkHost2:zkPort'")
-      usage
+      System.err.println(usage)
       System.exit(1)
     }
 
@@ -39,7 +41,7 @@ object HBaseTest {
     }
 
     if (args.length < 2) {
-      usage
+      System.err.println(usage)
       System.exit(1)
     }
     
@@ -53,7 +55,7 @@ object HBaseTest {
     if ( args(1).toLowerCase().equals("create") ) 
     {
       if ( args.length < 3 ) {
-        usage
+        System.err.println(usage)
         System.exit(1)
       }
 
@@ -69,7 +71,7 @@ object HBaseTest {
 
     // Other options for configuring scan behavior are available. More information available at
     // http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/mapreduce/TableInputFormat.html
-    val conf = hbc.getConfiguration()
+    val conf = hbc.getConfiguration
 
     val scannerTimeout = conf.getLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, -1) 
     println("Current (local) lease period: " + scannerTimeout + "ms")

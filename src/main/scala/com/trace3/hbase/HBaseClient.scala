@@ -37,15 +37,15 @@ import org.apache.hadoop.hbase.util.Bytes
 class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
   var conf: Configuration = HBaseConfiguration.create
-  var blockSize: Int      = (64 * 1024)
-  var compress: Boolean   = false
-  var compressType        = Algorithm.SNAPPY
-  var bloomFilter         = BloomType.ROW
-  val version             = "1.0.1"
+  var blockSize: Int     = 64 * 1024
+  var compress: Boolean  = false
+  var compressType       = Algorithm.SNAPPY
+  var bloomFilter        = BloomType.ROW
+  val version            = "1.0.2"
 
   init()
  
-  val conn: Connection    = ConnectionFactory.createConnection(conf)
+  val conn: Connection   = ConnectionFactory.createConnection(conf)
 
   
   private def init() : Unit = {
@@ -55,14 +55,14 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
 
   
-  def getConfiguration() : Configuration = this.conf
-  def getConnection() : Connection = this.conn
-  def close() : Unit = this.conn.close
+  def getConfiguration : Configuration = this.conf
+  def getConnection    : Connection    = this.conn
+  def close() : Unit                   = this.conn.close()
 
 
   def setRPCTimeout ( timeOut : Long )   : Unit = this.setRPCTimeout(timeOut.toString)
   def setRPCTimeout ( timeOut : String ) : Unit = this.conf.set("hbase.rpc.timeout", timeOut)
-  def getRPCTimeout() : String                  = this.conf.get("hbase.rpc.timeout")
+  def getRPCTimeout : String                    = this.conf.get("hbase.rpc.timeout")
 
 
   def setScannerTimeout ( timeOut : Long ) : Unit = 
@@ -71,20 +71,20 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def setScannerTimeout ( timeOut : String ) : Unit =
     this.setScannerTimeout(timeOut.toLong)
 
-  def getScannerTimeout() : Long =
+  def getScannerTimeout : Long =
     this.conf.getLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, -1)
 
 
   /*  BloomType.NONE, BloomType.ROW, or BloomType.ROWCOL */
-  def setBloomFilterType ( filter: BloomType ) = this.bloomFilter = filter
-  def getBloomFilterType() : BloomType = this.bloomFilter
+  def setBloomFilterType ( filter: BloomType ) : Unit = this.bloomFilter = filter
+  def getBloomFilterType : BloomType                  = this.bloomFilter
 
 
   /*  Set compression type (eg. SNAPPY) */
-  def setCompressionType ( algo: Algorithm ) = this.compressType = algo
-  def getCompressionType() : Algorithm       = this.compressType
-  def enableCompression  ( c: Boolean )      = this.compress = c
-  def compressionEnabled() : Boolean         = this.compress
+  def setCompressionType ( algo: Algorithm ) : Unit = this.compressType = algo
+  def getCompressionType : Algorithm                = this.compressType
+  def enableCompression  ( c: Boolean ) : Unit      = this.compress = c
+  def compressionEnabled : Boolean                  = this.compress
 
 
   def setInputTable ( tableName : String ) : Unit =
@@ -92,7 +92,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
 
   /** Returns an Array of table names as strings */
-  def listTables() : Array[String] = {
+  def listTables : Array[String] = {
     val admin = this.conn.getAdmin
     val ary   = admin.listTableNames.map(t => t.toString)
     admin.close()
@@ -101,7 +101,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
 
   /** Returns an Array of org.apache.hadoop.hbase.HTableDescriptors */
-  def getTables() : Array[HTableDescriptor] = {
+  def getTables : Array[HTableDescriptor] = {
     val admin   = this.conn.getAdmin
     val tables  = admin.listTables()
     admin.close()
@@ -147,7 +147,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
       admin.createTable(tDesc, regionKeyBytes)
     }
 
-    admin.close
+    admin.close()
     true
   }
 
@@ -172,7 +172,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
     admin.modifyTable(table, tDesc)
     admin.enableTable(table)
-    admin.close
+    admin.close()
   }
 
 
@@ -206,7 +206,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
     admin.modifyTable(table, tDesc)
     admin.enableTable(table)
-    admin.close
+    admin.close()
   }
 
 
@@ -214,7 +214,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def tableExists ( tableName: String ) : Boolean = {
     val admin = this.conn.getAdmin
     val res   = admin.isTableAvailable(TableName.valueOf(tableName))
-    admin.close
+    admin.close()
     res
   }
 
@@ -225,7 +225,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     val table = TableName.valueOf(tableName)
     admin.disableTable(table)
     admin.deleteTable(table)
-    admin.close
+    admin.close()
   }
 
 
@@ -284,7 +284,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
       loader.doBulkLoad(new Path(tmpPath), admin, this.getTable(tableName),
         this.conn.getRegionLocator(TableName.valueOf(tableName)))
     } finally {
-      admin.close
+      admin.close()
     }
   }
 

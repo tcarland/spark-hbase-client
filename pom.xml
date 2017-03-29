@@ -20,12 +20,11 @@
   </developers>
 
   <properties>
-      <spark-assembly>/usr/lib/spark/lib/spark-assembly.jar</spark-assembly>
       <encoding>UTF-8</encoding>
       <hadoop.version>2.7.1</hadoop.version>
-      <scala.tools.version>2.10</scala.tools.version>
-      <scala.version>2.10.6</scala.version>
-      <spark.version>2.0.0</spark.version>
+      <scala.tools.version>2.11</scala.tools.version>
+      <scala.version>2.11.8</scala.version>
+      <spark.version>2.0.2</spark.version>
       <hbase.version>1.1.5</hbase.version>    
   </properties>
   

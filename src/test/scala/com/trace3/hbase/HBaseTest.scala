@@ -1,26 +1,25 @@
 package com.trace3.hbase
 
+import org.apache.spark.sql.SparkSession
+
 import org.apache.hadoop.hbase.HConstants
 import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
-import org.apache.spark._
 
 
 object HBaseTest {
 
   def usage = """
       ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
+      ==>   where cmd =  list|create|delete
     """
 
   
-  def main(args: Array[String]) {
-    val sparkConf = new SparkConf().setAppName("HBaseTest")
-    val sc = new SparkContext(sparkConf)
-
+  def main ( args: Array[String] ) {
     if (args.length < 1) {
       System.err.println(usage)
       System.exit(1)
     }
-    
+
     val zks : Array[String] = args(0).split(",")
     val zk = zks(0).split(":")
     
@@ -30,7 +29,9 @@ object HBaseTest {
       System.exit(1)
     }
 
-    val hbc = new HBaseClient(zk(0), zk(1)) 
+    val spark = SparkSession.builder.appName("HBaseClientTest").getOrCreate()
+    val sc    = spark.sparkContext
+    val hbc   = new HBaseClient(zk(0), zk(1))
 
     // List and exit
     if ( args(1).equals("list") ) {
@@ -67,23 +68,23 @@ object HBaseTest {
       hbc.deleteTable(tbl)
       if ( hbc.tableExists(tbl) )
         println("  ==> ERROR..delete no workie?")
+    } else {
+      // Other options for configuring scan behavior are available. More information available at
+      // http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/mapreduce/TableInputFormat.html
+      val conf = hbc.getConfiguration
+
+      val scannerTimeout = conf.getLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, -1)
+      println("Current (local) lease period: " + scannerTimeout + "ms")
+
+      conf.set(TableInputFormat.INPUT_TABLE, tbl)
+
+      val hbaseRDD = sc.newAPIHadoopRDD(conf, classOf[TableInputFormat],
+        classOf[org.apache.hadoop.hbase.io.ImmutableBytesWritable],
+        classOf[org.apache.hadoop.hbase.client.Result])
+
+      hbaseRDD.take(15).foreach(println)
     }
 
-    // Other options for configuring scan behavior are available. More information available at
-    // http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/mapreduce/TableInputFormat.html
-    val conf = hbc.getConfiguration
-
-    val scannerTimeout = conf.getLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, -1) 
-    println("Current (local) lease period: " + scannerTimeout + "ms")
-
-    conf.set(TableInputFormat.INPUT_TABLE, tbl)
-
-    val hbaseRDD = sc.newAPIHadoopRDD(conf, classOf[TableInputFormat],
-      classOf[org.apache.hadoop.hbase.io.ImmutableBytesWritable],
-      classOf[org.apache.hadoop.hbase.client.Result])
-
-    hbaseRDD.take(15).foreach(println)
-
-    sc.stop()
+    spark.stop()
   }
 }

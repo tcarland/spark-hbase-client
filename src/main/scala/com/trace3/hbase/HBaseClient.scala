@@ -37,11 +37,11 @@ import org.apache.hadoop.hbase.util.Bytes
 class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
   var conf: Configuration = HBaseConfiguration.create
-  var blockSize: Int     = 64 * 1024
-  var compress: Boolean  = false
-  var compressType       = Algorithm.SNAPPY
-  var bloomFilter        = BloomType.ROW
-  val version            = "1.0.2"
+  var blockSize: Int      = 64 * 1024
+  var compress: Boolean   = false
+  var compressType        = Algorithm.SNAPPY
+  var bloomFilter         = BloomType.ROW
+  val version             = "1.0.2"
 
   init()
  
@@ -52,7 +52,6 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     this.conf.set("hbase.zookeeper.quorum", zkHost)
     this.conf.set("hbase.zookeeper.property.clientPort", zkPort)
   }
-
 
   
   def getConfiguration : Configuration = this.conf
@@ -67,10 +66,8 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
   def setScannerTimeout ( timeOut : Long ) : Unit = 
     this.conf.setLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, timeOut)
-
   def setScannerTimeout ( timeOut : String ) : Unit =
     this.setScannerTimeout(timeOut.toLong)
-
   def getScannerTimeout : Long =
     this.conf.getLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, -1)
 
@@ -211,6 +208,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
 
   /** Determines if a given table is available */
+  def exists      ( tableName: String ) : Boolean = this.tableExists(tableName)
   def tableExists ( tableName: String ) : Boolean = {
     val admin = this.conn.getAdmin
     val res   = admin.isTableAvailable(TableName.valueOf(tableName))
@@ -220,6 +218,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
 
   /** Deletes an existing table from HBase */
+  def dropTable   ( tableName: String ) : Unit = this.deleteTable(tableName)
   def deleteTable ( tableName: String ) : Unit = {
     val admin = this.conn.getAdmin
     val table = TableName.valueOf(tableName)

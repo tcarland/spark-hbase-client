@@ -244,14 +244,14 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
   /** Computes the region splits based on given number of regions
     * for the provided RDD of (sorted!) string keys
-    */
+   **/
   def computeRegionSplits ( dataSet: RDD[String], numRegions: Int ) : Seq[String] = 
     dataSet.mapPartitions(_.take(1)).collect.toList.tail
 
 
   /** Note that the HBase Bulk Loader requires the keys to be sorted, and
     * the tmpPath should not already exist.
-    */
+   **/
   def saveBulkDataset ( tmpPath: String, tableName: String, 
                         dataSet: RDD[(ImmutableBytesWritable, KeyValue)] ) : Unit =
   {

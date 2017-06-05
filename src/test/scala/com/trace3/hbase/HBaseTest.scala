@@ -8,10 +8,10 @@ import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
 
 object HBaseTest {
 
-  def usage = """
-      ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
-      ==>   where cmd =  list|create|delete
-    """
+  val usage : String = """
+    | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
+    | ==>   where cmd =  list|create|delete
+    """.stripMargin
 
   
   def main ( args: Array[String] ) {

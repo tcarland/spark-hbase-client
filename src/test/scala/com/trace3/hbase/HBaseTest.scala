@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
 
 object HBaseTest {
 
-  val usage : String = """
+  def usage : String = """
     | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
     | ==>   where cmd =  list|create|delete
     """.stripMargin
@@ -20,8 +20,8 @@ object HBaseTest {
       System.exit(1)
     }
 
-    val zks : Array[String] = args(0).split(",")
-    val zk = zks(0).split(":")
+    val zks  = args(0).split(",")
+    val zk   = zks(0).split(":")
     
     if ( zk.length < 2 ) {
       System.err.println("  ==> Error in Zookeeper definition. Should be 'zkHost1:zkPort,zkHost2:zkPort'")
@@ -30,14 +30,12 @@ object HBaseTest {
     }
 
     val spark = SparkSession.builder.appName("HBaseClientTest").getOrCreate()
-    val sc    = spark.sparkContext
     val hbc   = new HBaseClient(zk(0), zk(1))
 
     // List and exit
     if ( args(1).equals("list") ) {
-      val ary = hbc.listTables
       println(" ====> List Tables:")
-      ary.foreach(println)
+      hbc.listTables.foreach(println)
       System.exit(0)
     }
 
@@ -53,17 +51,16 @@ object HBaseTest {
     else
       println("  ==> Table '" + tbl + "' not found")
 
-    if ( args(1).toLowerCase().equals("create") ) 
+    if ( args(1).toLowerCase().equals("create") )
     {
       if ( args.length < 3 ) {
         System.err.println(usage)
         System.exit(1)
       }
-
       if ( hbc.createTable(tbl, args(2)) )
         println("  ==> Table created")
-    } 
-    else if ( args(0).toLowerCase().equals("delete") ) 
+    }
+    else if ( args(0).toLowerCase().equals("delete") )
     {
       hbc.deleteTable(tbl)
       if ( hbc.tableExists(tbl) )
@@ -78,7 +75,7 @@ object HBaseTest {
 
       conf.set(TableInputFormat.INPUT_TABLE, tbl)
 
-      val hbaseRDD = sc.newAPIHadoopRDD(conf, classOf[TableInputFormat],
+      val hbaseRDD = spark.sparkContext.newAPIHadoopRDD(conf, classOf[TableInputFormat],
         classOf[org.apache.hadoop.hbase.io.ImmutableBytesWritable],
         classOf[org.apache.hadoop.hbase.client.Result])
 

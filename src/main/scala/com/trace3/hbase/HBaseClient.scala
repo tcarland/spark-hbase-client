@@ -118,8 +118,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     * @param regionKeys  A list of keys to split by
     * @return            A Boolean indicating success of the operation
     */
-  def createTable ( tableName: String, 
-                    colFamily: String, 
+  def createTable ( tableName: String, colFamily: String,
                     regionKeys: Seq[String] = Seq.empty ) : Boolean =
   {
     val admin = this.conn.getAdmin
@@ -139,10 +138,8 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
     if ( regionKeys.isEmpty )
       admin.createTable(tDesc)
-    else {
-      val regionKeyBytes = regionKeys.map(Bytes.toBytes).toArray
-      admin.createTable(tDesc, regionKeyBytes)
-    }
+    else
+      admin.createTable(tDesc, regionKeys.map(Bytes.toBytes).toArray)
 
     admin.close()
     true

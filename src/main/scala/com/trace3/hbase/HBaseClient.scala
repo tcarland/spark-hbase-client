@@ -1,7 +1,7 @@
 /**   HBaseClient.scala
  *
  *    @author Timothy C. Arland <tarland@trace3.com>
- *    @created July 4, 2016
+ *    Created July 4, 2016
 **/
 package com.trace3.hbase
 
@@ -126,7 +126,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     if ( admin.isTableAvailable(TableName.valueOf(tableName)) )
       return false
 
-    var tDesc = new HTableDescriptor(TableName.valueOf(Bytes.toBytes(tableName)))
+    val tDesc = new HTableDescriptor(TableName.valueOf(Bytes.toBytes(tableName)))
     val cDesc = new HColumnDescriptor(Bytes.toBytes(colFamily))
 
     if ( this.compress )
@@ -150,7 +150,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def modifyTable ( tableName: String, colFamily: String ) : Unit = {
     val admin = this.conn.getAdmin
     val table = TableName.valueOf(tableName)
-    var tDesc = admin.getTableDescriptor(table)
+    val tDesc = admin.getTableDescriptor(table)
     val cDesc = tDesc.getFamily(Bytes.toBytes(colFamily))
 
     if ( this.compress )
@@ -184,7 +184,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     val admin = this.conn.getAdmin
     val table = TableName.valueOf(tableName)
 
-    var tDesc = admin.getTableDescriptor(table)
+    val tDesc = admin.getTableDescriptor(table)
     val cDesc = new HColumnDescriptor(Bytes.toBytes(colFamily))
 
     if ( this.compress )

@@ -14,19 +14,13 @@ and executor.
 #### Install
 
   This project currently lacks a public maven artifact, but can be 
-installed locally via the following command: 
+installed locally once built after *'mvn package'*: 
 
 ```
-mvn install:install-file -Dpackaging=jar -DgroupId=com.trace3.hbase -DartifactId=spark-hbase-client -Dversion=1.1.0 -Dfile=spark-hbase-client-1.0.2.jar
-
-# or
-
-mvn install:install-file -Dfile=<path-to-file>
+mvn install:install-file -Dpackaging=jar -DgroupId=com.trace3.hbase -DartifactId=spark-hbase-client -Dversion=1.1.0 -Dfile=target/spark-hbase-client-1.1.0.jar
 ```
-
 
 Maven Artifact:
-
 ```
 <dependency>
   <groupId>com.trace3.hbase</groupId>

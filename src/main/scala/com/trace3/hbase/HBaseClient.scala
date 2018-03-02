@@ -41,7 +41,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   var compress: Boolean   = false
   var compressType        = Algorithm.SNAPPY
   var bloomFilter         = BloomType.ROW
-  val version             = "1.1.0"
+  val version             = "1.1.1"
 
   init()
 
@@ -53,6 +53,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     this.conf.set("hbase.zookeeper.property.clientPort", zkPort)
   }
 
+  // ---------------------------------------------------------------------
 
   def getConfiguration : Configuration = this.conf
   def getConnection    : Connection    = this.conn
@@ -87,6 +88,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def setInputTable ( tableName : String ) : Unit =
     this.conf.set(TableInputFormat.INPUT_TABLE, tableName)
 
+  // ---------------------------------------------------------------------
 
   /** Returns an Array of table names as strings */
   def listTables : Array[String] = {
@@ -110,12 +112,13 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def getTable ( tableName: String ) : Table =
     this.conn.getTable(TableName.valueOf(tableName))
 
+  // ---------------------------------------------------------------------
 
   /**  Create a new table
     *
     * @param tableName   Name of the new table
     * @param colFamily   Name of the column family
-    * @param regionKeys  A list of keys to split by
+    * @param regionKeys  An optional list of keys to split by
     * @return            A Boolean indicating success of the operation
     */
   def createTable ( tableName: String, colFamily: String,
@@ -203,6 +206,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     admin.close()
   }
 
+  // ---------------------------------------------------------------------
 
   /** Determines if a given table is available */
   def exists      ( tableName: String ) : Boolean = this.tableExists(tableName)
@@ -213,8 +217,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     res
   }
 
-
-  /** Deletes an existing table from HBase */
+  /** Deletes an existing table from HBase...permanently, forever. */
   def dropTable   ( tableName: String ) : Unit = this.deleteTable(tableName)
   def deleteTable ( tableName: String ) : Unit = {
     val admin = this.conn.getAdmin
@@ -224,6 +227,23 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     admin.close()
   }
 
+  /** Enable a table previously disabled */
+  def enableTable ( tableName: String ) : Unit = {
+      val admin = this.conn.getAdmin
+      val table = TableName.valueOf(tableName)
+      admin.enableTable(table)
+      admin.close()
+  }
+
+  /** Disable an existing HBase table without deleting it. */
+  def disableTable ( tableName: String ) : Unit = {
+      val admin = this.conn.getAdmin
+      val table = TableName.valueOf(tableName)
+      admin.disableTable(table)
+      admin.close()
+  }
+
+  // ---------------------------------------------------------------------
 
   /**  Saves a given RDD of HBase Puts to the provided table. A writeable
     *  OutputDir is needed by the Job getConfiguration.
@@ -242,6 +262,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     dataSet.saveAsNewAPIHadoopDataset(this.conf)
   }
 
+  // ---------------------------------------------------------------------
 
   /** Computes the region splits based on given number of regions
     * for the provided RDD of (sorted!) string keys
@@ -269,6 +290,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
       classOf[HFileOutputFormat2], job.getConfiguration)
   }
 
+  // ---------------------------------------------------------------------
 
   /**  Completes the bulk loading by processing the HFiles created
     *  by saveBulkDataset().
@@ -287,5 +309,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
       admin.close()
     }
   }
+
+  // ---------------------------------------------------------------------
 
 } // class HBaseClient

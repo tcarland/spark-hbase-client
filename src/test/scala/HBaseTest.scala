@@ -1,16 +1,18 @@
-package com.trace3.hbase
 
 import org.apache.spark.sql.SparkSession
 
 import org.apache.hadoop.hbase.HConstants
 import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
 
+import com.trace3.hbase.HBaseClient
+
 
 object HBaseTest {
 
-  def usage : String = """
-    | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
-    | ==>   where cmd =  list|create|delete
+  def usage : String = 
+    """
+      | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
+      | ==>   where cmd =  list|create|delete
     """.stripMargin
 
   
@@ -29,7 +31,10 @@ object HBaseTest {
       System.exit(1)
     }
 
-    val spark = SparkSession.builder.appName("HBaseClientTest").getOrCreate()
+    val spark = SparkSession.builder
+      .appName("HBaseClientTest")
+      .getOrCreate()
+
     val hbc   = new HBaseClient(zk(0), zk(1))
 
     // List and exit

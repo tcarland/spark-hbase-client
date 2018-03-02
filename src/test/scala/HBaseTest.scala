@@ -12,7 +12,7 @@ object HBaseTest {
   def usage : String = 
     """
       | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
-      | ==>   where cmd =  list|create|delete
+      | ==>   where cmd =  list|create|delete|scan
     """.stripMargin
 
   
@@ -56,20 +56,20 @@ object HBaseTest {
     else
       println("  ==> Table '" + tbl + "' not found")
 
-    if ( args(1).toLowerCase().equals("create") )
-    {
+    if ( args(1).toLowerCase().equals("create") ) {
       if ( args.length < 3 ) {
         System.err.println(usage)
         System.exit(1)
       }
+
       if ( hbc.createTable(tbl, args(2)) )
         println("  ==> Table created")
-    }
-    else if ( args(0).toLowerCase().equals("delete") )
-    {
+    } else if ( args(0).toLowerCase().equals("delete") ) {
       hbc.deleteTable(tbl)
+
       if ( hbc.tableExists(tbl) )
         println("  ==> ERROR..delete no workie?")
+
     } else {
       // Other options for configuring scan behavior are available. More information available at
       // http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/mapreduce/TableInputFormat.html

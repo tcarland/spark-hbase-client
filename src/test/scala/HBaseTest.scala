@@ -1,16 +1,18 @@
-package com.trace3.hbase
 
 import org.apache.spark.sql.SparkSession
 
 import org.apache.hadoop.hbase.HConstants
 import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat}
 
+import com.trace3.hbase.HBaseClient
+
 
 object HBaseTest {
 
-  def usage : String = """
-    | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
-    | ==>   where cmd =  list|create|delete
+  def usage : String = 
+    """
+      | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
+      | ==>   where cmd =  list|create|delete|scan
     """.stripMargin
 
   
@@ -29,7 +31,10 @@ object HBaseTest {
       System.exit(1)
     }
 
-    val spark = SparkSession.builder.appName("HBaseClientTest").getOrCreate()
+    val spark = SparkSession.builder
+      .appName("HBaseClientTest")
+      .getOrCreate()
+
     val hbc   = new HBaseClient(zk(0), zk(1))
 
     // List and exit
@@ -51,20 +56,20 @@ object HBaseTest {
     else
       println("  ==> Table '" + tbl + "' not found")
 
-    if ( args(1).toLowerCase().equals("create") )
-    {
+    if ( args(1).toLowerCase().equals("create") ) {
       if ( args.length < 3 ) {
         System.err.println(usage)
         System.exit(1)
       }
+
       if ( hbc.createTable(tbl, args(2)) )
         println("  ==> Table created")
-    }
-    else if ( args(0).toLowerCase().equals("delete") )
-    {
+    } else if ( args(0).toLowerCase().equals("delete") ) {
       hbc.deleteTable(tbl)
+
       if ( hbc.tableExists(tbl) )
         println("  ==> ERROR..delete no workie?")
+
     } else {
       // Other options for configuring scan behavior are available. More information available at
       // http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/mapreduce/TableInputFormat.html

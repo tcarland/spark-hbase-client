@@ -23,16 +23,16 @@ import org.apache.hadoop.hbase.regionserver.BloomType
 import org.apache.hadoop.hbase.util.Bytes
 
 
-/**  HBaseClient wraps use of the org.apache.hadoop.hbase API. 
-  *  This should not be considered thread-safe and care must 
-  *  be used regarding context ie. driver vs worker. Many of 
-  *  these methods can also all throw java.io.IOException.
+/**  HBaseClient wraps use of the org.apache.hadoop.hbase API.
+  *  This should not be considered thread-safe and care must be used
+  *  regarding context ie. driver vs worker. Many of these methods can
+  *  also all throw java.io.IOException.
   *
-  *  TODO:  
+  *  TODO:
   *  Clean up and provide better exception/error handling
   *  Take an arbitrary list (String*) of zookeepers
   *  Provide better connection status and zookeeper fallover
-  *         
+  *
  **/
 class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
@@ -41,19 +41,19 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   var compress: Boolean   = false
   var compressType        = Algorithm.SNAPPY
   var bloomFilter         = BloomType.ROW
-  val version             = "1.0.4"
+  val version             = "1.1.0"
 
   init()
- 
+
   val conn: Connection   = ConnectionFactory.createConnection(conf)
 
-  
+
   private def init() : Unit = {
     this.conf.set("hbase.zookeeper.quorum", zkHost)
     this.conf.set("hbase.zookeeper.property.clientPort", zkPort)
   }
 
-  
+
   def getConfiguration : Configuration = this.conf
   def getConnection    : Connection    = this.conn
   def close() : Unit                   = this.conn.close()
@@ -64,7 +64,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def getRPCTimeout : String                    = this.conf.get("hbase.rpc.timeout")
 
 
-  def setScannerTimeout ( timeOut : Long ) : Unit = 
+  def setScannerTimeout ( timeOut : Long ) : Unit =
     this.conf.setLong(HConstants.HBASE_CLIENT_SCANNER_TIMEOUT_PERIOD, timeOut)
   def setScannerTimeout ( timeOut : String ) : Unit =
     this.setScannerTimeout(timeOut.toLong)
@@ -107,7 +107,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
 
   /** Returns the HBase Table handle for a table */
-  def getTable ( tableName: String ) : Table = 
+  def getTable ( tableName: String ) : Table =
     this.conn.getTable(TableName.valueOf(tableName))
 
 
@@ -171,10 +171,10 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
 
 
   /** Add a new ColumnFamily to the given HBase Table.
-   *  Note the underlying modifyTable is asynchronous. 
+   *  Note the underlying modifyTable is asynchronous.
    *
-   *  TODO: This method should properly handle the Future<> 
-   *  return object and offer switchable behavior to either 
+   *  TODO: This method should properly handle the Future<>
+   *  return object and offer switchable behavior to either
    *  block until complete, or return immediately/asynchronous.
    *
    *  @param tableName  name of the table
@@ -225,16 +225,20 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   }
 
 
-  /**  Saves a given RDD of HBase Puts to the provided table */
-  def saveDataset ( tableName: String, 
-                    dataSet: RDD[(ImmutableBytesWritable, Put)] ) : Unit = 
+  /**  Saves a given RDD of HBase Puts to the provided table. A writeable
+    *  OutputDir is needed by the Job getConfiguration.
+   **/
+  def saveDataset ( tableName: String,
+                    dataSet: RDD[(ImmutableBytesWritable, Put)],
+                    outputDir: String = "/tmp" ) : Unit =
   {
     this.conf.set("hbase.mapred.outputtable", tableName)
-    this.conf.set("mapreduce.job.outputformat.class", 
+    this.conf.set("mapreduce.output.fileoutputformat.outputdir", outputDir)
+    this.conf.set("mapreduce.job.outputformat.class",
                   "org.apache.hadoop.hbase.mapreduce.TableOutputFormat")
-    this.conf.set("mapreduce.job.output.key.class", 
+    this.conf.set("mapreduce.job.output.key.class",
                   "org.apache.hadoop.hbase.io.ImmutableBytesWritable")
-   
+
     dataSet.saveAsNewAPIHadoopDataset(this.conf)
   }
 
@@ -242,14 +246,14 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   /** Computes the region splits based on given number of regions
     * for the provided RDD of (sorted!) string keys
    **/
-  def computeRegionSplits ( dataSet: RDD[String], numRegions: Int ) : Seq[String] = 
+  def computeRegionSplits ( dataSet: RDD[String], numRegions: Int ) : Seq[String] =
     dataSet.mapPartitions(_.take(1)).collect.toList.tail
 
 
   /** Note that the HBase Bulk Loader requires the keys to be sorted, and
     * the tmpPath should not already exist.
    **/
-  def saveBulkDataset ( tmpPath: String, tableName: String, 
+  def saveBulkDataset ( tmpPath: String, tableName: String,
                         dataSet: RDD[(ImmutableBytesWritable, KeyValue)] ) : Unit =
   {
     this.conf.set(TableOutputFormat.OUTPUT_TABLE, tableName)
@@ -266,11 +270,11 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   }
 
 
-  /**  Completes the bulk loading by processing the HFiles created 
+  /**  Completes the bulk loading by processing the HFiles created
     *  by saveBulkDataset().
-    * 
+    *
     *  @param tmpPath  is the path where the bulk HFiles were written
-    *  @param tableName is the name of the table to load the HFiles 
+    *  @param tableName is the name of the table to load the HFiles
    **/
   def doBulkLoad ( tmpPath: String, tableName: String ) : Unit = {
     val admin  = this.conn.getAdmin
@@ -285,4 +289,3 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   }
 
 } // class HBaseClient
-

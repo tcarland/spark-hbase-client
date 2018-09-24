@@ -9,6 +9,5 @@ TARGET_CLASS="HBaseTest"
 
 
 spark-submit --master yarn \
- --num-executors 4 \
  --class $TARGET_CLASS \
  $TARGET_JAR $@

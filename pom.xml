@@ -23,9 +23,9 @@
       <encoding>UTF-8</encoding>
       <hadoop.version>2.7.4</hadoop.version>
       <hbase.version>1.1.5</hbase.version>
-      <scala.tools.version>2.11</scala.tools.version>
-      <scala.version>2.11.8</scala.version>
-      <spark.version>2.3.1</spark.version>
+      <scala.version>2.12.8</scala.version>
+      <scala.tools.version>2.12</scala.tools.version>
+      <spark.version>2.4.2</spark.version>
   </properties>
 
   <dependencies>

@@ -8,7 +8,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.trace3.hbase</groupId>
   <artifactId>spark-hbase-client</artifactId>
-  <version>1.1.6</version>
+  <version>1.1.7</version>
   <packaging>jar</packaging>
   <description>Spark HBase Client</description>
 
@@ -23,8 +23,8 @@
       <encoding>UTF-8</encoding>
       <hadoop.version>2.7.4</hadoop.version>
       <hbase.version>1.1.5</hbase.version>
-      <scala.version>2.12.8</scala.version>
-      <scala.tools.version>2.12</scala.tools.version>
+      <scala.version>2.11.8</scala.version>
+      <scala.tools.version>2.11</scala.tools.version>
       <spark.version>2.4.2</spark.version>
   </properties>
 

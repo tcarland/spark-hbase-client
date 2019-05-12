@@ -9,13 +9,13 @@ import com.trace3.hbase.HBaseClient
 
 object HBaseTest {
 
-  def usage : String = 
+  def usage : String =
     """
       | ==> Usage: HBaseTest <zookeepers> <cmd> <table_name>
       | ==>   where cmd =  list|create|delete|scan
     """.stripMargin
 
-  
+
   def main ( args: Array[String] ) {
     if (args.length < 1) {
       System.err.println(usage)
@@ -24,7 +24,7 @@ object HBaseTest {
 
     val zks  = args(0).split(",")
     val zk   = zks(0).split(":")
-    
+
     if ( zk.length < 2 ) {
       System.err.println("  ==> Error in Zookeeper definition. Should be 'zkHost1:zkPort,zkHost2:zkPort'")
       System.err.println(usage)
@@ -48,9 +48,9 @@ object HBaseTest {
       System.err.println(usage)
       System.exit(1)
     }
-    
+
     val tbl = args(2)
-   
+
     if ( hbc.tableExists(tbl) )
       println("  ==> Table '" + tbl + "' Exists")
     else
@@ -68,7 +68,7 @@ object HBaseTest {
       hbc.deleteTable(tbl)
 
       if ( hbc.tableExists(tbl) )
-        println("  ==> ERROR..delete no workie?")
+        println("  ==> Error in deleteTable '" + tbl + "'")
 
     } else {
       // Other options for configuring scan behavior are available. More information available at

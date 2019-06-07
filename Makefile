@@ -1,9 +1,9 @@
 
 
 
-all: main test
+all: target test
 
-main:
+target:
 	( mvn package )
 
 test:
@@ -15,3 +15,4 @@ clean:
 distclean: clean
 
 install:
+

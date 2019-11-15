@@ -31,7 +31,7 @@ import org.apache.hadoop.hbase.util.Bytes
   *  TODO:
   *  Clean up and provide better exception/error handling
   *  Take an arbitrary list (String*) of zookeepers
-  *  Provide better connection status and zookeeper fallover
+  *  Provide better connection status and zookeeper failover
   *
  **/
 class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {

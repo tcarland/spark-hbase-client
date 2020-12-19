@@ -21,11 +21,11 @@
 
   <properties>
       <encoding>UTF-8</encoding>
-      <hadoop.version>2.7.4</hadoop.version>
+      <hadoop.version>3.3.0</hadoop.version>
       <hbase.version>1.3.3</hbase.version>
-      <scala.version>2.12.8</scala.version>
+      <scala.version>2.12.12</scala.version>
       <scala.tools.version>2.12</scala.tools.version>
-      <spark.version>2.4.4</spark.version>
+      <spark.version>3.0.1</spark.version>
   </properties>
 
   <dependencies>

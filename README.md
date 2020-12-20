@@ -17,8 +17,8 @@ installed locally once built after *'mvn package'*:
 
 ```
 mvn install:install-file -Dpackaging=jar -DgroupId=com.trace3.hbase \
- -DartifactId=spark-hbase-client -Dversion=1.2.0 \
- -Dfile=target/spark-hbase-client-1.2.0.jar
+ -DartifactId=spark-hbase-client -Dversion=1.3.1 \
+ -Dfile=target/spark-hbase-client-1.3.1.jar
 ```
 
 Maven Artifact:
@@ -26,6 +26,6 @@ Maven Artifact:
 <dependency>
   <groupId>com.trace3.hbase</groupId>
   <artifactId>spark-hbase-client</artifactId>
-  <version>1.2.0</version>
+  <version>1.3.1</version>
 </dependency>
 ```

@@ -41,7 +41,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   var compress: Boolean   = false
   var compressType        = Algorithm.SNAPPY
   var bloomFilter         = BloomType.ROW
-  val version             = "1.3.1"
+  val version             = "1.3.3"
 
   init()
 

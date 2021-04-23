@@ -10,15 +10,25 @@ driver. Care should be taken to not mix object instances between the driver
 and executor.
 
 
-#### Install
+### Project settings
 
-  This project currently lacks a public maven artifact, but can be
-installed locally once built after *'mvn package'*:
-
+The project has a GitHub based Maven Repository, which would need an entry 
+to either maven settings or the project pom. Currently, GitHub requires 
+authentication for its [Packages](https://docs.github.com/en/packages) project.
 ```
-mvn install:install-file -Dpackaging=jar -DgroupId=com.trace3.hbase \
- -DartifactId=spark-hbase-client -Dversion=1.3.1 \
- -Dfile=target/spark-hbase-client-1.3.1.jar
+    <repositories>
+      <repository>
+        <id>spark-hbase-client</id>
+        <url>https://maven.pkg.github.com/tcarland/spark-hbase-client</url>
+      </repository>
+    <repositories>
+```
+
+Optionally create a local maven entry from the build of this repo
+```
+  mvn install:install-file -Dpackaging=jar -DgroupId=com.trace3.hbase \
+   -DartifactId=spark-hbase-client -Dversion=1.4.0 \
+   -Dfile=target/spark-hbase-client-1.4.0.jar
 ```
 
 Maven Artifact:
@@ -26,6 +36,6 @@ Maven Artifact:
 <dependency>
   <groupId>com.trace3.hbase</groupId>
   <artifactId>spark-hbase-client</artifactId>
-  <version>1.3.1</version>
+  <version>1.4.0</version>
 </dependency>
 ```

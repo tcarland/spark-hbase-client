@@ -2,6 +2,6 @@
 #  Build a test jar
 #  Run 'mvn package test' first
 #
-TARGET_JAR="target/spark-hbase-client-test-1.3.3.jar"
+TARGET_JAR="target/spark-hbase-client-test-1.4.1.jar"
 
 ( jar -cvf $TARGET_JAR -C target/classes . -C target/test-classes . )

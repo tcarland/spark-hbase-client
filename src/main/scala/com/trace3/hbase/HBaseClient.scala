@@ -13,14 +13,18 @@ import org.apache.hadoop.mapreduce.Job
 
 import org.apache.hadoop.hbase.{TableName, HConstants, KeyValue}
 import org.apache.hadoop.hbase.{HBaseConfiguration, HColumnDescriptor, HTableDescriptor}
+import org.apache.hadoop.hbase.client.{TableDescriptor, TableDescriptorBuilder, ColumnFamilyDescriptorBuilder}
 import org.apache.hadoop.hbase.client.{HBaseAdmin, Table, ConnectionFactory, Connection}
 import org.apache.hadoop.hbase.client.{Put, Result, Get, Delete, Scan, ResultScanner}
 import org.apache.hadoop.hbase.mapreduce.{TableInputFormat, TableOutputFormat, HFileOutputFormat2}
-import org.apache.hadoop.hbase.mapreduce.LoadIncrementalHFiles
+import org.apache.hadoop.hbase.tool.BulkLoadHFiles
 import org.apache.hadoop.hbase.io.ImmutableBytesWritable
 import org.apache.hadoop.hbase.io.compress.Compression._
 import org.apache.hadoop.hbase.regionserver.BloomType
 import org.apache.hadoop.hbase.util.Bytes
+
+import scala.jdk.CollectionConverters._
+
 
 
 /**  HBaseClient wraps use of the org.apache.hadoop.hbase API.
@@ -41,7 +45,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   var compress: Boolean   = false
   var compressType        = Algorithm.SNAPPY
   var bloomFilter         = BloomType.ROW
-  val version             = "1.4.1"
+  val version             = "v1.5.0"
 
   init()
 
@@ -99,10 +103,10 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   }
 
 
-  /** Returns an Array of org.apache.hadoop.hbase.HTableDescriptors */
-  def getTables : Array[HTableDescriptor] = {
+  /** Returns an Array of org.apache.hadoop.hbase.client.TableDescriptors */
+  def getTables : List[TableDescriptor] = {
     val admin   = this.conn.getAdmin
-    val tables  = admin.listTables()
+    val tables  = admin.listTableDescriptors().asScala.toList
     admin.close()
     tables
   }
@@ -124,25 +128,25 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def createTable ( tableName: String, colFamily: String,
                     regionKeys: Seq[String] = Seq.empty ) : Boolean =
   {
-    val admin = this.conn.getAdmin
+    val admin = this.conn.getAdmin()
 
     if ( admin.isTableAvailable(TableName.valueOf(tableName)) )
       return false
 
-    val tDesc = new HTableDescriptor(TableName.valueOf(Bytes.toBytes(tableName)))
-    val cDesc = new HColumnDescriptor(Bytes.toBytes(colFamily))
-
-    if ( this.compress )
-      cDesc.setCompressionType(this.compressType)
-
-    cDesc.setBlocksize(this.blockSize)
-    cDesc.setBloomFilterType(this.bloomFilter)
-    tDesc.addFamily(cDesc)
+    val tableDesc : TableDescriptor = TableDescriptorBuilder
+        .newBuilder(TableName.valueOf(tableName))
+        .setColumnFamily(ColumnFamilyDescriptorBuilder
+            .newBuilder(colFamily.getBytes())
+            .setBlocksize(this.blockSize)
+            .setBloomFilterType(this.bloomFilter)
+            .setCompressionType(this.compressType)
+            .build())
+        .build()
 
     if ( regionKeys.isEmpty )
-      admin.createTable(tDesc)
+      admin.createTable(tableDesc)
     else
-      admin.createTable(tDesc, regionKeys.map(Bytes.toBytes).toArray)
+      admin.createTable(tableDesc, regionKeys.map(Bytes.toBytes).toArray)
 
     admin.close()
     true
@@ -153,21 +157,19 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
   def modifyTable ( tableName: String, colFamily: String ) : Unit = {
     val admin = this.conn.getAdmin
     val table = TableName.valueOf(tableName)
-    val tDesc = admin.getTableDescriptor(table)
-    val cDesc = tDesc.getFamily(Bytes.toBytes(colFamily))
+    val tDesc = admin.getDescriptor(table)
 
-    if ( this.compress )
-      cDesc.setCompressionType(this.compressType)
-
-    cDesc.setBlocksize(this.blockSize)
-    cDesc.setBloomFilterType(this.bloomFilter)
-
-    tDesc.addFamily(cDesc)
+    val cDesc = ColumnFamilyDescriptorBuilder
+        .newBuilder(colFamily.getBytes())
+        .setBlocksize(this.blockSize)
+        .setBloomFilterType(this.bloomFilter)
+        .setCompressionType(this.compressType)
+        .build()
 
     if ( admin.isTableAvailable(table) )
       admin.disableTable(table)
 
-    admin.modifyTable(table, tDesc)
+    admin.modifyColumnFamily(table, cDesc)
     admin.enableTable(table)
     admin.close()
   }
@@ -187,21 +189,20 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     val admin = this.conn.getAdmin
     val table = TableName.valueOf(tableName)
 
-    val tDesc = admin.getTableDescriptor(table)
-    val cDesc = new HColumnDescriptor(Bytes.toBytes(colFamily))
-
-    if ( this.compress )
-      cDesc.setCompressionType(this.compressType)
-
-    cDesc.setBlocksize(this.blockSize)
-    cDesc.setBloomFilterType(this.bloomFilter)
-
-    tDesc.addFamily(cDesc)
+    val tableDesc : TableDescriptor = TableDescriptorBuilder
+        .newBuilder(table)
+        .setColumnFamily(ColumnFamilyDescriptorBuilder
+            .newBuilder(colFamily.getBytes())
+            .setBlocksize(this.blockSize)
+            .setBloomFilterType(this.bloomFilter)
+            .setCompressionType(this.compressType)
+            .build())
+        .build()
 
     if ( admin.isTableAvailable(table) )
       admin.disableTable(table)
 
-    admin.modifyTable(table, tDesc)
+    admin.modifyTable(tableDesc)
     admin.enableTable(table)
     admin.close()
   }
@@ -268,7 +269,7 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
     * for the provided RDD of (sorted!) string keys
    **/
   def computeRegionSplits ( dataSet: RDD[String], numRegions: Int ) : Seq[String] =
-    dataSet.mapPartitions(_.take(1)).collect.toList.tail
+    dataSet.mapPartitions(_.take(1)).collect().toList.tail
 
 
   /** Note that the HBase Bulk Loader requires the keys to be sorted, and
@@ -300,11 +301,10 @@ class HBaseClient ( zkHost: String, zkPort: String ) extends Serializable {
    **/
   def doBulkLoad ( tmpPath: String, tableName: String ) : Unit = {
     val admin  = this.conn.getAdmin
-    val loader = new LoadIncrementalHFiles(this.conf)
-
+    val loader = BulkLoadHFiles.create(this.conf)
+    
     try {
-      loader.doBulkLoad(new Path(tmpPath), admin, this.getTable(tableName),
-        this.conn.getRegionLocator(TableName.valueOf(tableName)))
+      loader.bulkLoad(TableName.valueOf(tableName), new Path(tmpPath))
     } finally {
       admin.close()
     }

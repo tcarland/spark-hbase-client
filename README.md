@@ -34,7 +34,7 @@ authentication for its [Packages](https://docs.github.com/en/packages) project.
           <id>spark-hbase-client</id>
           <url>https://maven.pkg.github.com/tcarland/spark-hbase-client</url>
       </repository>
-  <repositories>
+  </repositories>
 ```
 
 Optionally create a local maven entry from the build of this repo

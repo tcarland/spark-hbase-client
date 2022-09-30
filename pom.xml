@@ -31,7 +31,7 @@
         <encoding>UTF-8</encoding>
         <hadoop.version>3.3.3</hadoop.version>
         <hbase.version>2.4.8</hbase.version>
-        <scala.version>2.13.5</scala.version>
+        <scala.version>2.13.9</scala.version>
         <scala.binary.version>2.13</scala.binary.version>
         <spark.version>3.2.2</spark.version>
     </properties>

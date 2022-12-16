@@ -1,5 +1,4 @@
-
-
+# Makefile wrapper to Maven
 
 all: target test
 

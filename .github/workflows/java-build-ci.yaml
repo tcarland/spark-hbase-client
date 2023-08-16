@@ -3,7 +3,8 @@ name: Java CI
 on:
   push:
     tags: [ "v*" ]
-    branches: [ "tca-*" ]
+  pull_request:
+    branches: [ "master" ]
 
 jobs:
   build:

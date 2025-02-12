@@ -18,7 +18,7 @@ and is dropped from the available profiles, though the project is still
 compatible. By default, the build prefers Scala-2.13 for Spark 3.3, but 
 Scala-2.12 can be compiled by selecting the correct profile (and ensuring the 
 spark version is set).
-```
+```sh
 mvn package -Pscala-2.12
 ```
 
@@ -39,8 +39,8 @@ authentication for its [Packages](https://docs.github.com/en/packages) project.
 Optionally create a local maven entry from the build of this repo
 ```sh
 mvn install:install-file -Dpackaging=jar -DgroupId=com.trace3.hbase \
- -DartifactId=spark-hbase-client -Dversion=1.5.3_2.13 \
- -Dfile=target/spark-hbase-client-1.5.3_2.13.jar
+-DartifactId=spark-hbase-client -Dversion=1.5.4_2.13 \
+-Dfile=target/spark-hbase-client-1.5.4_2.13.jar
 ```
 
 Maven Artifact:
@@ -53,6 +53,6 @@ Maven Artifact:
   <dependency>
       <groupId>com.trace3.hbase</groupId>
       <artifactId>spark-hbase-client</artifactId>
-      <version>1.5.3_${scala.binary.varsion}</version>
+      <version>1.5.4_${scala.binary.varsion}</version>
   </dependency>
 ```
